@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather viewer</title>
+    <style>
+        .div{
+            background-image:linear-gradient(rgba(26, 16, 82, 0.2), rgba(71, 71, 115, 0.5)), url('homebg.jpg');
+            background-size: cover; 
+            background-repeat: no-repeat;
+            text-align: center;
+            width:100%;
+            border-color: black;
+            border-radius: 10px;
+            background-color: black;
+        }
+        
+        h1,h2
+        {
+            color:white;
+            
+        }
+        input,button {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.8);
+        }
+        button {
+            background: #19c62d;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #128948;
+        }
+        .weather-card {
+            background-color: rgba(255, 255, 255,); /* Light background with transparency */
+            border-radius: 15px;  /* Rounded corners */
+            padding: 20px;  /* Space inside the card */
+            max-width: 400px;  /* Set maximum width */
+            margin: 20px auto;  /* Center the card and add margin */
+            box-shadow: 4px 4px 10px 2px rgba(0, 0, 0, 0.8);
+            text-align: center;  /* Center text inside */
+            font-family: 'Arial', sans-serif;  /* Set font */
+            border-color: black;
+            border-width: 10px;
+            
+        }
+        .weather-card h2 {
+            font-size: 2em;
+            color: #333;  /* Dark color for city and country */
+            margin-bottom: 10px;  /* Space below heading */
+        }
+
+        .weather-card p {
+            font-size: 1.1em;  /* Slightly bigger text */
+            color: #555;  /* Gray color for text */
+            margin: 5px 0;  /* Space between paragraphs */
+        }
+ 
+    </style>
+</head>
+<body>
+    <div class="div">
+        <div class="row" style="padding-top: 20px;">
+            <h1>
+                WONDERING WHAT'S THE <br>
+                "WEATHER" AROUND YOU?
+            </h1>
+        </div>
+       
+        <div id="app" >
+            <div class="col" style="padding-top:210px ;">
+                <input type="text" id="city-input" placeholder="Enter city name" style="height:20px" width="180px">
+                <br>
+                
+            </div>
+            <div class="col" style="padding-top:15px ;">
+                <button id="search-button">Get Weather</button>
+                <br>
+                <br>
+            </div>
+            
+            <div id="weather-result"></div>   
+        </div>
+        
+        
+        
+    </div>
+    
+
+    <script>
+        const apiKey = 'e5f7e6757a368591519fd0b744bfe348'; // Replace with your actual API key
+        const apiBase = 'https://api.openweathermap.org/data/2.5/weather';
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const city = document.getElementById('city-input').value.trim();
+            if (city) {
+                getWeather(city);
+            } else {
+                alert('Please enter a city name!');
+            }
+        });
+
+        async function getWeather(city) {
+            try {
+                // Construct the URL dynamically
+                const url = `${apiBase}?q=${city}&appid=${apiKey}&units=metric`;
+                console.log('Request URL:', url); // Debug log to check URL
+                const response = await fetch(url);
+                const data = await response.json();
+                console.log('API Response:', data); // Debug log to inspect API response
+                displayWeather(data);
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        function displayWeather(data) {
+            const resultDiv = document.getElementById('weather-result');
+            if (data.cod === 200) {
+                const temp = data.main.temp;
+                const color = getCardColor(temp);
+                resultDiv.innerHTML = `
+                    <div class="weather-card" style="background-color: ${color};">
+                        <h2>${data.name}, ${data.sys.country}</h2>
+                        <br>
+                        <p><strong>Temperature:</strong> ${data.main.temp}°C</p>
+                        <p><strong>Weather:</strong> ${data.weather[0].description}</p>
+                        <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+                        <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+                    </div>
+                    <br>
+                    <br>
+                `;
+            } else {
+                resultDiv.innerHTML = `<p>${data.message}. Please try again.</p>`;
+            }
+        }
+        function getCardColor(temp) {
+            if (temp <= 0) {
+                return '#4f86f7'; // Blue for cold
+            } else if (temp <= 15) {
+                return '#ffbb33'; // Yellow for mild
+            } else if (temp <= 30) {
+                return '#ff7043'; // Orange for warm
+            } else {
+                return '#f44336'; // Red for hot
+            }
+        }
+
+    </script>
+   
+
+</body>
+</html>
